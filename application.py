@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect
+from flask import url_for, flash, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
 from database_setup import Base, Category, Item, User
 from flask import session as login_session
-import random, string
+import random
+import string
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -27,15 +29,17 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+
 # create a state token to prevent request forgery.
 # store it in the session for later validation
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-        for x in xrange(32))
+                    for x in xrange(32))
     login_session['state'] = state
-    #return "The current session state is %s" % login_session['state']
+    # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
+
 
 # add a logout function that calls gdisconnect and redirect to homepage
 @app.route('/logout')
@@ -44,6 +48,8 @@ def logout():
     flash('Successfully logged out!')
     return redirect(url_for('homepage'))
 
+
+#gconnect code from Udacity course material
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -96,8 +102,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -127,12 +133,12 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '  # noqa
     flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
     return output
 
-# User functions
+
+# user functions
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
         'email'], picture=login_session['picture'])
@@ -141,9 +147,11 @@ def createUser(login_session):
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
+
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
+
 
 def getUserID(email):
     try:
@@ -153,18 +161,20 @@ def getUserID(email):
         return None
 
 
+# gdisconnect code from Udacity course material
 @app.route('/gdisconnect')
 def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
     print login_session['username']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -179,9 +189,11 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
 
 # jsonify categories and its items
 @app.route('/catalog.json')
@@ -196,6 +208,7 @@ def catalogJSON():
         category_data.append(data)
     return jsonify(Category=category_data)
 
+
 # homepage
 @app.route('/')
 @app.route('/catalog/')
@@ -205,10 +218,11 @@ def homepage():
     # if logged in, show add_item button, otherwise hide add_item button
     if 'username' not in login_session:
         return render_template('public_homepage.html',
-            categories=categories, items=items)
+                               categories=categories, items=items)
     else:
         return render_template('homepage.html',
-            categories=categories, items=items)
+                               categories=categories, items=items)
+
 
 # show items for a specific category
 @app.route('/catalog/<category_name>/items/')
@@ -219,10 +233,13 @@ def specificCategory(category_name):
     num = session.query(Item).filter_by(category_id=category.id).count()
     if 'username' not in login_session:
         return render_template('public_specific_category.html',
-            categories=categories, category=category, items=items, num=num)
+                               categories=categories, category=category,
+                               items=items, num=num)
     else:
         return render_template('specific_category.html',
-            categories=categories, category=category, items=items, num=num)
+                               categories=categories, category=category,
+                               items=items, num=num)
+
 
 # show item
 @app.route('/catalog/<category_name>/<item_title>/')
@@ -232,10 +249,11 @@ def specificItem(category_name, item_title):
     creator = getUserInfo(item.user_id)
     if 'username' not in login_session:
         return render_template('public_specific_item.html', item=item)
-    elif creator.id !=login_session['user_id']:
+    elif creator.id != login_session['user_id']:
         return render_template('user_specific_item.html', item=item)
     else:
         return render_template('creator_specific_item.html', item=item)
+
 
 # create route for newItem funcion here
 @app.route('/catalog/new/', methods=['GET', 'POST'])
@@ -245,16 +263,19 @@ def newItem():
 
     if request.method == 'POST':
         newItem = Item(
-            title = request.form['title'],
-            category_id = session.query(Category).filter_by(name=request.form['category_name']).one().id,
-            description = request.form['description'],
+            title=request.form['title'],
+            category_id=session.query(Category).filter_by(
+                name=request.form['category_name']).one().id,
+            description=request.form['description'],
             user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         flash("new item created!")
         return redirect('/')
     else:
-        return render_template('newitem.html', categories=session.query(Category).all())
+        return render_template(
+            'newitem.html', categories=session.query(Category).all())
+
 
 # create route for editItem function here
 @app.route('/catalog/<item_title>/edit/', methods=['GET', 'POST'])
@@ -265,22 +286,28 @@ def editItem(item_title):
     # alert user just in case the user tries to visit a url
     # that they are not authorized to access
     if editedItem.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this item. Please create your own item in order to delete.');}</script><body onload='myFunction()'>"
+        return "<script>function myFunction() {alert('You are not authorized to edit this item. Please create your own item in order to delete.');}</script><body onload='myFunction()'>"  # noqa
     if request.method == 'POST':
         if request.form['title']:
             editedItem.title = request.form['title']
         if request.form['description']:
             editedItem.description = request.form['description']
         if request.form['category_name']:
-            editedItem.category_id = session.query(Category).filter_by(name=request.form['category_name']).one().id
+            editedItem.category_id = session.query(Category).filter_by(
+                name=request.form['category_name']).one().id
         session.add(editedItem)
         session.commit()
         flash("item editted!")
-        return redirect(url_for('specificItem', category_name=editedItem.category.name, item_title=editedItem.title))
+        return redirect(url_for(
+            'specificItem', category_name=editedItem.category.name,
+            item_title=editedItem.title))
     else:
-        return render_template('editItem.html', item=editedItem, categories=session.query(Category).all())
+        return render_template(
+            'editItem.html', item=editedItem,
+            categories=session.query(Category).all())
 
     return "page to edit an item"
+
 
 # create route for deleteItem function here
 @app.route('/catalog/<item_title>/delete/', methods=['GET', 'POST'])
@@ -291,7 +318,7 @@ def deleteItem(item_title):
     # alert user just in case the user tries to visit a url
     # that they are not authorized to access
     if itemToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this item. Please create your own item in order to delete.');}</script><body onload='myFunction()'>"
+        return "<script>function myFunction() {alert('You are not authorized to delete this item. Please create your own item in order to delete.');}</script><body onload='myFunction()'>"  # noqa
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
