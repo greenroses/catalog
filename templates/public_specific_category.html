@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Catalog App</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="bootstrap.min.css") }}">
+    <link rel="stylesheet" href="{{ url_for("static", filename="styles.css") }}">
+</head>
+<body>
+  <div class="container">
+    <div class="row header">
+      <div class="col-md-9">
+        <h1>Catalog App</h1>
+      </div>
+      <div class="col-md-3">
+        <a href="http://localhost:8000/login" class="btn btn-primary button">Login</a>
+        <a href="http://localhost:8000/" class="btn btn-primary button">Go to homepage</a>
+      </div>
+    </div>
+
+    <div class="row flash">
+      <div class="col-md-12">
+        <!--MESSAGE FLASHING -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li><strong>{{message}}</strong></li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
+    <div class="row">
+      <br>
+    </div>
+
+    <div class="row content">
+      <div class="col-md-3 cagetories">
+        <h2>Categories</h2>
+        {% for i in categories %}
+        <div>
+        <a href='{{url_for('specificCategory', category_name = i.name )}}'>{{i.name}}</a>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="col-md-9 items">
+        <h2>{{category.name}} items ({{num}} items)</h2>
+        {% for i in items %}
+        <div>
+        <a href='{{url_for('specificItem', category_name = i.category.name, item_title = i.title )}}'>{{i.title}}</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+a, a:hover, a:visited, a:link, a:active, a:focus
+{
+  text-decoration: none;
+}
+
+body {
+  background-color: #e8e9ea;
+}
+
+.header {
+  background-color: #061e44;
+  border-radius: .25rem;
+  margin-top: 10px;
+}
+
+.content {
+  border: 1px solid;
+  border-radius: .25rem;
+  background-color: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.button {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  color: white;
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+.items {
+  border-left: 1px solid;
+}
+
+.flash {
+  color: red;
+}

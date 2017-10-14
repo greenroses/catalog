@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Catalog App</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="bootstrap.min.css") }}">
+    <link rel="stylesheet" href="{{ url_for("static", filename="styles.css") }}">
+</head>
+<body>
+  <div class="container">
+    <div class="row header">
+      <div class="col-md-9">
+        <h1>Catalog App</h1>
+      </div>
+      <div class="col-md-3">
+        <a href="http://localhost:8000/logout" class="btn btn-primary button">Logout</a>
+        <a href="http://localhost:8000/" class="btn btn-primary button">Go to homepage</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <br>
+    </div>
+
+    <div class="row content">
+      <div class="col-md-12">
+        <h2>New Item</h2>
+        <form action="{{ url_for('newItem', item_id=item_id )}}" method="post">
+          <div class="form-group">
+            <label for="InputTitle">Title</label>
+            <input type="text" class="form-control" name="title">
+          </div>
+          <div class="form-group">
+            <label for="InputDescription">Description</label>
+            <textarea class="form-control" rows="3" name="description"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="Select">Category</label>
+            <select class="form-control" name="category_name">
+                {% for i in categories %}
+                <option value="{{i.name}}">{{i.name}}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <a href="http://localhost:8000/" class="btn btn-primary button">Cancel</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
