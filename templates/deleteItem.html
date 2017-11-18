@@ -15,22 +15,6 @@
       </div>
       <div class="col-md-3">
         <a href="http://ec2-13-59-189-169.us-east-2.compute.amazonaws.com/logout" class="btn btn-primary button">Logout</a>
-        <a href="http://ec2-13-59-189-169.us-east-2.compute.amazonaws.com" class="btn btn-primary button">Go to homepage</a>
-      </div>
-    </div>
-
-    <div class="row flash">
-      <div class="col-md-12">
-        <!--MESSAGE FLASHING -->
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li><strong>{{message}}</strong></li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
       </div>
     </div>
 
@@ -40,13 +24,15 @@
 
     <div class="row content">
       <div class="col-md-12">
-        <h2>{{item.title}}</h2>
-        <p>Description: {{item.description}}</p>
-        <a href="{{url_for('deleteItem', item_title = item.title )}}" class="btn btn-primary button">delete</a>
-        <a href="{{url_for('editItem', item_title = item.title )}}" class="btn btn-primary button">edit</a>
+        <h2>Delete Item</h2>
+        <p>Are you sure you want to delete {{item.title}}?</p>
+        <form action="{{ url_for('deleteItem', item_title = item.title)}}" method = 'post'>
+          <button type="submit" class="btn btn-primary">Delete</button>
+        </form>
+        <a href="{{url_for('specificItem', category_name=item.category.name, item_title=item.title)}}"
+          class="btn btn-primary button">Cancel</a>
       </div>
     </div>
   </div>
 </body>
-
 </html>

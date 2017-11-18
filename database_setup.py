@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 import os
 import sys
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
@@ -58,7 +59,7 @@ class Item(Base):
         }
 
 
-engine = create_engine('sqlite:///categoryitemwithusers.db')
+engine = create_engine('postgresql://catalog:catalog@localhost/categoryitemwithusers')
 
 
 Base.metadata.create_all(engine)
